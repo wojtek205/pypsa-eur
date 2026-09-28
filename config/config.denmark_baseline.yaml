@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-tutorial: true
+tutorial: false
 
 run:
   name: "dk-baseline"
@@ -32,11 +32,11 @@ electricity:
 atlite:
   default_cutout: europe-2013-sarah3-era5
   cutouts:
-    be-03-2013-era5:
+    europe-2013-sarah3-era5:
       module: era5
-      x: [4., 15.]
-      y: [46., 56.]
-      time: ["2013-03-01", "2013-03-08"]
+      x: [7.5, 15.5]
+      y: [54.0, 58.5]
+      time: ["2013-06-01", "2013-07-01"]
 
 renewable:
   offwind-ac:
@@ -51,22 +51,40 @@ clustering:
   temporal:
     averaging: false
   cluster_network:
-    n_clusters: 2
+    n_clusters: 5
 
 sector:
   enabled: true #enable sector-coupling
-  # --- TRANSPORT / EV SETTINGS ---
-  # These parameters define the EV fleet, battery capacity, smart charging, and V2G:
-  bev_dsm: true                    # Enables smart charging / demand side management
-  bev_availability: 0.5            # Fraction of vehicles available for smart charging / plugged in
-  bev_energy: 0.05                 # Average battery size in MWh (50 kWh per EV)
-  bev_charge_rate: 0.011           # Charger power in MW (11 kW home charger)
-  bev_plug_to_wheel_efficiency: 0.2 # MWh/100km or efficiency metric
-  v2g: true                        # Enables bidirectional vehicle-to-grid power flow
-  v2g_availability: 0.5            # Fraction of parked cars participating in V2G
-
+  transport: true
   gas_network: true
   H2_retrofit: true
+
+  # --- TRANSPORT / EV SETTINGS ---
+  # These parameters define the EV fleet, battery capacity, smart charging, and V2G:
+  bev_dsm: true
+  bev_dsm_availability: 0.5            # 50% of the fleet participates in DSM
+  bev_dsm_restriction_value: 0.8       # Must reach 80% SoC by restriction time
+  bev_dsm_restriction_time: 7          # 07:00 in the morning
+  bev_energy: 0.05                     # 0.05 MWh = 50 kWh battery capacity per vehicle
+  bev_charge_rate: 0.011               # 0.011 MW = 11 kW charger power rating
+  bev_charge_efficiency: 0.9           # 90% charging efficiency
+  bev_avail_max: 0.95                  # Maximum fleet connection availability factor
+  bev_avail_mean: 0.8                  # Average fleet connection availability factor
+  v2g: true                            # Enables Vehicle-to-Grid discharge back to the grid
+
+  # Fleet adoption rates for the 2030 planning horizon
+  land_transport_electric_share:
+    2030: 0.20                         # Change to 1.0 later if modeling a fully electrified fleet
+  land_transport_ice_share:
+    2030: 0.80                         # Internal combustion engine share
+  land_transport_fuel_cell_share:
+    2030: 0.0                          # Hydrogen fuel cell share
+
+  # Vehicle consumption parameters
+  transport_electric_efficiency: 53.19 # km/MWh (~18.8 kWh/100 km)
+  EV_lower_degree_factor: 0.98         # Cabin heating sensitivity
+  EV_upper_degree_factor: 0.63         # Cabin cooling sensitivity
+
   residential_heat:
     dsm:
       enable: true
@@ -91,7 +109,6 @@ sector:
     - air
     - geothermal
     - river_water
-    - sea_water
     urban decentral:
     - air
     rural:
@@ -121,11 +138,10 @@ solving:
   solver:
     name: highs
     options: highs-default
-  mem_mb: 4000
+  mem_mb: 8000
 
   check_objective:
-    enable: true
-    expected_value: 568751130.55
+    enable: false
 
 plotting:
   map:

@@ -67,7 +67,11 @@ def build_nodal_industrial_production():
         buses = keys.index[keys.country == country]
         mapping = sector_mapping.get(sector, "population")
 
-        key = keys.loc[buses, mapping]
+        if isinstance(mapping, str):
+            key = keys.reindex(columns=[mapping], fill_value=0.0).loc[buses, mapping]
+        else:
+            key = keys.reindex(columns=mapping, fill_value=0.0).loc[buses]
+
         nodal_production.loc[buses, sector] = (
             industrial_production.at[country, sector] * key
         )

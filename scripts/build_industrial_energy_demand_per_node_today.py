@@ -64,9 +64,12 @@ def build_nodal_industrial_energy_demand():
         buses = keys.index[keys.country == country]
         mapping = sector_mapping.get(sector, "population")
 
-        key = keys.loc[buses, mapping]
-        demand = industrial_demand[country, sector]
+        if isinstance(mapping, str):
+            key = keys.reindex(columns=[mapping], fill_value=0.0).loc[buses, mapping]
+        else:
+            key = keys.reindex(columns=mapping, fill_value=0.0).loc[buses]
 
+        demand = industrial_demand[country, sector]
         outer = pd.DataFrame(
             np.outer(key, demand), index=key.index, columns=demand.index
         )
