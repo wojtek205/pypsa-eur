@@ -1,0 +1,17 @@
+# config.denmark_vipv.yaml
+# VIPV scenario: identical to config.denmark_baseline.yaml, plus VIPV.
+# Always run together with the baseline file:
+#   --configfile config/config.denmark_baseline.yaml config/config.denmark_vipv.yaml
+
+run:
+  name: "dk-vipv"             # new name, so baseline results are not overwritten
+
+sector:
+  vipv:
+    enable: true              # the switch: true = add VIPV, false = no VIPV
+    capacity_per_car_kw: 0.4  # 2 m2 x 200 W/m2 per car (supervisor's assumption)
+    derating_factor: 1.0      # 1.0 = same output as rooftop PV; e.g. 0.7 = 30% less
+
+plotting:
+  tech_colors:
+    VIPV: "#ff8c00"           # orange colour for VIPV in PyPSA-Eur's plots

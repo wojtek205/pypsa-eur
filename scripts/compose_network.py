@@ -35,6 +35,7 @@ from scripts.prepare_perfect_foresight import main as prepare_perfect_foresight
 from scripts.prepare_sector_network import (
     main as add_sector_components,
 )
+from scripts.vipv import add_vipv
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,7 @@ if __name__ == "__main__":
 
     if sector_mode:
         add_sector_components(n, inputs, params, costs, nyears, current_horizon)
+        add_vipv(n, params.sector)
 
     apply_temporal_aggregation(n, inputs, params)
 
