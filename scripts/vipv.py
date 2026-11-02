@@ -32,8 +32,10 @@ def add_vipv(n, sector_options):
         logger.info("VIPV disabled - skipping.")
         return
 
-    kw_per_car = cfg.get("capacity_per_car_kw", 0.4)
-    derating = cfg.get("derating_factor", 1.0)
+    kw_per_car = cfg.get("capacity_per_car_kw", 0.4) # capacity per car in kW
+    derating = cfg.get("derating_factor", 1.0) # derating factor for rooftop solar profile
+    efficiency = cfg.get("conversion_efficiency", 1.0)  # DC-DC converter (MPPT) losses
+    logger.info(f"VIPV settings: derating={derating}, conversion_efficiency={efficiency}")
     charge_rate = sector_options["bev_charge_rate"]  # MW charger per car
 
     chargers = n.links[n.links.carrier == "BEV charger"]
@@ -59,7 +61,7 @@ def add_vipv(n, sector_options):
 
         n_evs = charger.p_nom / charge_rate
         p_nom = n_evs * kw_per_car / 1e3  # kW -> MW
-        profile = p_max_pu_all[rooftop_by_location[location]] * derating
+        profile = p_max_pu_all[rooftop_by_location[location]] * derating * efficiency
 
         n.add(
             "Generator",
