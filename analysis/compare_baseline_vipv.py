@@ -23,7 +23,7 @@ import pypsa
 # SETTINGS - change these if needed
 # ---------------------------------------------------------------------------
 RUNS = {"Baseline": "dk-base-2030-jun", "VIPV": "dk-vipv-2030-jun-d100-e100"}
-OUT_DIR = Path("results") / "comparison_vipv"
+OUT_DIR = Path("results") / f"comparison_{RUNS['Baseline']}_vs_{RUNS['VIPV']}"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 TIMEZONE = "Europe/Copenhagen"

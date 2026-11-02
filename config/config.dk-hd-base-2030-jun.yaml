@@ -1,0 +1,33 @@
+# Baseline WITH separate buses and trucks (no VIPV).
+# Run:  --configfile config/config.dk-base-2030-jun.yaml config/config.dk-hd-base-2030-jun.yaml
+
+run:
+  name: "dk-hd-base-2030-jun"
+
+sector:
+  heavy_transport:
+    enable: true
+    timezone: "Europe/Copenhagen"
+    bus:
+      number_vehicles: 10794       # Denmark 2023, Nordic Statistics TRSP01
+      battery_kwh: 500             # Sanvito et al. (2026)
+      charger_kw: 150              # placeholder - to verify (Danish Energy Agency catalogue)
+      depot_hours: [19, 6]         # local time at depot (19:00-06:00)
+      availability_depot: 0.9      # share of fleet plugged in at depot hours
+      availability_road: 0.2       # share plugged in during the day (breaks, opportunity charging)
+    truck:
+      number_vehicles: 27719       # Denmark 2023, heavy goods vehicles >3.5 t, TRSP01
+      battery_kwh: 1000            # Sanvito et al. (2026)
+      charger_kw: 150              # placeholder - to verify
+      depot_hours: [19, 6]
+      availability_depot: 0.9
+      availability_road: 0.2
+
+plotting:
+  tech_colors:
+    bus charger: "#4b7bec"
+    truck charger: "#8854d0"
+    bus EV battery: "#45aaf2"
+    truck EV battery: "#a55eea"
+    land transport bus EV: "#2d98da"
+    land transport truck EV: "#6c5ce7"

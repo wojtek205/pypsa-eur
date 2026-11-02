@@ -36,6 +36,7 @@ from scripts.prepare_sector_network import (
     main as add_sector_components,
 )
 from scripts.vipv import add_vipv
+from scripts.heavy_transport import add_heavy_transport
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,7 @@ if __name__ == "__main__":
 
     if sector_mode:
         add_sector_components(n, inputs, params, costs, nyears, current_horizon)
+        add_heavy_transport(n, inputs, params.sector, current_horizon)
         add_vipv(n, params.sector)
 
     apply_temporal_aggregation(n, inputs, params)
