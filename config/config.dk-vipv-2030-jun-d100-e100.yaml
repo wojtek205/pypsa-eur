@@ -11,7 +11,7 @@ sector:
     enable: true              # the switch: true = add VIPV, false = no VIPV
     capacity_per_car_kw: 0.4  # 2 m2 x 200 W/m2 per car (supervisor's assumption)
     derating_factor: 1.0
-    conversion_efficiency: 0.95 # 1.0 = no losses in DC-DC converter (MPPT)
+    conversion_efficiency: 1.0 # PVs are already modeled with 0.95 efficiency in the solar module, so no further losses are assumed for the DC-DC conversion and MPPT.
 
 plotting:
   tech_colors:

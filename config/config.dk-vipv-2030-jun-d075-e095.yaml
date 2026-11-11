@@ -1,18 +1,22 @@
-# config.denmark_vipv.yaml
-# VIPV scenario: identical to config.denmark_baseline.yaml, plus VIPV.
-# Always run together with the baseline file:
-#   --configfile config/config.denmark_baseline.yaml config/config.denmark_vipv.yaml
+# Vans, buses + trucks separate, VIPV on cars, vans, buses and trucks.
+# Run:  --configfile config/config.dk-base-2030-jun.yaml config/config.dk-hd-base-2030-jun.yaml config/config.dk-hd-vipv-2030-jun-d075-e095.yaml
 
 run:
-  name: "dk-vipv-2030-jun-d075-e095"             # new name, so baseline results are not overwritten
+  name: "dk-hd-vipv-2030-jun-d075-e095"
 
 sector:
   vipv:
-    enable: true              # the switch: true = add VIPV, false = no VIPV
-    capacity_per_car_kw: 0.4  # 2 m2 x 200 W/m2 per car (supervisor's assumption)
-    derating_factor: 0.75        # shading 25% + curvature 3% (Herrero 2024)
-    conversion_efficiency: 0.95  # DC-DC + MPPT losses (Schüler et al. 2022)
+    enable: true
+    capacity_per_car_kw: 0.4       # 2 m2 x 200 W/m2 (supervisor)
+    capacity_per_van_kw: 1.0       # mixed fleet; 0.81-2.17 kWp for large vans, Kutter et al. (2021)
+    capacity_per_bus_kw: 4.0       # ~20 m2 usable roof (own estimate)
+    capacity_per_truck_kw: 5.0     # 3-7 kWp range, Schueler et al. (2022)
+    derating_factor: 0.75          # shading 25% + curvature 3% (Herrero 2024)
+    conversion_efficiency: 1.0    # PVs are already modeled with 0.95 efficiency in the solar module, so no further losses are assumed for the DC-DC conversion and MPPT.
 
 plotting:
   tech_colors:
-    VIPV: "#ff8c00"           # orange colour for VIPV in PyPSA-Eur's plots
+    VIPV: "#ff8c00"
+    VIPV van: "#ffc078"
+    VIPV bus: "#ffa94d"
+    VIPV truck: "#e8590c"

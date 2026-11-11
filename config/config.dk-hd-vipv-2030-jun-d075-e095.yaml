@@ -11,7 +11,7 @@ sector:
     capacity_per_bus_kw: 4.0       # ~20 m2 usable roof (own estimate)
     capacity_per_truck_kw: 5.0     # 3-7 kWp range, Schueler et al. (2022)
     derating_factor: 0.75          # shading 25% + curvature 3% (Herrero 2024)
-    conversion_efficiency: 0.95    # DC-DC + MPPT (Schueler et al. 2022)
+    conversion_efficiency: 1.0   # PVs are already modeled with 0.95 efficiency in the solar module, so no further losses are assumed for the DC-DC conversion and MPPT.
 
 plotting:
   tech_colors:

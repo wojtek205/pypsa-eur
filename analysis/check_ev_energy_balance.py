@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 import pypsa
 
-RUNS = {"Baseline": "dk-base-2030-jun", "VIPV": "dk-vipv-2030-jun-d100-e100"}
+RUNS = {"Baseline": "dk-base-2030-jun", "VIPV": "dk-vipv-2030-jun-d075-e095"}
 rows = {}
 
 for label, run in RUNS.items():

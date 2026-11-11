@@ -1,4 +1,4 @@
-# Baseline WITH separate buses and trucks (no VIPV).
+# Baseline WITH separate vans, buses and trucks (no VIPV).
 # Run:  --configfile config/config.dk-base-2030-jun.yaml config/config.dk-hd-base-2030-jun.yaml
 
 run:
@@ -8,26 +8,43 @@ sector:
   heavy_transport:
     enable: true
     timezone: "Europe/Copenhagen"
+    van:                           # light goods vehicles <= 3.5 t - behave like cars
+      number_vehicles: 356198      # Denmark 2023, Nordic Statistics TRSP01
+      battery_kwh: 150             # Sanvito et al. (2026), light-duty commercial
+      charger_kw: 11               # same as cars (bev_charge_rate)
+      charging: car                # car plug-in profile + morning SoC rule
+      dsm_availability: 0.5        # same as cars: 50% smart charging / V2G
+      v2g: true
     bus:
       number_vehicles: 10794       # Denmark 2023, Nordic Statistics TRSP01
       battery_kwh: 500             # Sanvito et al. (2026)
       charger_kw: 150              # placeholder - to verify (Danish Energy Agency catalogue)
+      charging: depot
       depot_hours: [19, 6]         # local time at depot (19:00-06:00)
       availability_depot: 0.9      # share of fleet plugged in at depot hours
       availability_road: 0.2       # share plugged in during the day (breaks, opportunity charging)
+      min_soc: 0.2                 # batteries never below 20%
+      v2g: false
     truck:
       number_vehicles: 27719       # Denmark 2023, heavy goods vehicles >3.5 t, TRSP01
       battery_kwh: 1000            # Sanvito et al. (2026)
       charger_kw: 150              # placeholder - to verify
+      charging: depot
       depot_hours: [19, 6]
       availability_depot: 0.9
       availability_road: 0.2
+      min_soc: 0.2
+      v2g: false
 
 plotting:
   tech_colors:
+    van charger: "#20bf6b"
     bus charger: "#4b7bec"
     truck charger: "#8854d0"
+    van V2G: "#eb3b5a"
+    van EV battery: "#26de81"
     bus EV battery: "#45aaf2"
     truck EV battery: "#a55eea"
+    land transport van EV: "#0fb9b1"
     land transport bus EV: "#2d98da"
     land transport truck EV: "#6c5ce7"

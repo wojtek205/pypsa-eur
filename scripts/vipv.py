@@ -1,5 +1,5 @@
 """
-Vehicle-integrated PV (VIPV) for PyPSA-Eur - cars, buses and trucks.
+Vehicle-integrated PV (VIPV) for PyPSA-Eur - cars, vans, buses and trucks.
 
 Save this file as:  pypsa-eur/scripts/vipv.py   (replaces the old version)
 
@@ -12,12 +12,14 @@ Hourly profile     = rooftop solar profile of the same node * derating_factor * 
 
 Fleets:
   cars    -> carrier "VIPV"        (charger "BEV charger",   power = bev_charge_rate)
+  vans    -> carrier "VIPV van"    (charger "van charger",   power = heavy_transport: van: charger_kw)
   buses   -> carrier "VIPV bus"    (charger "bus charger",   power = heavy_transport: bus: charger_kw)
   trucks  -> carrier "VIPV truck"  (charger "truck charger", power = heavy_transport: truck: charger_kw)
 
 Config (sector: vipv:):
     enable: true
     capacity_per_car_kw: 0.4
+    capacity_per_van_kw: 1.0
     capacity_per_bus_kw: 4.0
     capacity_per_truck_kw: 5.0
     derating_factor: 0.75
@@ -49,10 +51,10 @@ def add_vipv(n, sector_options):
                 cfg.get("capacity_per_car_kw", 0.4), "VIPV"),
     }
     if heavy.get("enable", False):
-        fleets["bus"] = ("bus charger", heavy["bus"]["charger_kw"] / 1e3,
-                         cfg.get("capacity_per_bus_kw", 0.0), "VIPV bus")
-        fleets["truck"] = ("truck charger", heavy["truck"]["charger_kw"] / 1e3,
-                           cfg.get("capacity_per_truck_kw", 0.0), "VIPV truck")
+        for fleet in ["van", "bus", "truck"]:
+            if fleet in heavy:  # only fleets that heavy_transport.py created
+                fleets[fleet] = (f"{fleet} charger", heavy[fleet]["charger_kw"] / 1e3,
+                                 cfg.get(f"capacity_per_{fleet}_kw", 0.0), f"VIPV {fleet}")
 
     rooftop = n.generators[n.generators.carrier == "solar rooftop"]
     if rooftop.empty:
