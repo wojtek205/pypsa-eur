@@ -1,5 +1,5 @@
 """
-Compare runs fleet by fleet: cars, buses and trucks (with or without VIPV).
+Compare runs fleet by fleet: cars, vans, buses and trucks (with or without VIPV).
 
 Save as:  pypsa-eur/analysis/compare_heavy_transport.py
 Run with: pixi run python analysis/compare_heavy_transport.py
@@ -24,11 +24,12 @@ import pypsa
 RUNS = {
     "Baseline": "dk-base-2030-jun",
     "Heavy transport": "dk-hd-base-2030-jun",
-    # "HD + VIPV": "dk-hd-vipv-2030-jun-d075-e095",   # add when finished
+    "HD + VIPV": "dk-hd-vipv-2030-jun-d075-e100",
 }
 OUT_DIR = Path("results") / ("comparison_" + "_vs_".join(RUNS.values()))
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 TIMEZONE = "Europe/Copenhagen"
+WEEK_START = "2013-06-03"   # first day of the week plots (a Monday); change to look at another week
 
 # fleet: carrier names used in the model
 FLEETS = {
@@ -237,5 +238,53 @@ cap.plot.barh(ax=ax)
 ax.set_xlabel("Installed capacity [GW]")
 ax.set_title("Optimised wind and solar capacity")
 save(fig, "06_capacities")
+
+# ---------------------------------------------------------------------------
+# PLOT 7 - Full week per fleet: driving, charging, V2G, VIPV and SoC (last run)
+# One row per fleet; power on the left axis, state of charge on the right axis.
+# ---------------------------------------------------------------------------
+week = slice(pd.Timestamp(WEEK_START), pd.Timestamp(WEEK_START) + pd.Timedelta(days=7))
+fig, axes = plt.subplots(len(fleets), 1, figsize=(13, 3.2 * len(fleets)), sharex=True)
+axes = [axes] if len(fleets) == 1 else axes
+for ax, fleet in zip(axes, fleets):
+    d = series[last][fleet].loc[week]
+    ax.plot(d.index, d.driving, color="black", lw=1.2, label="driving demand")
+    ax.plot(d.index, d.charging, color=FLEET_COLORS[fleet], label="charging from grid")
+    if d.v2g.sum() > 0:
+        ax.plot(d.index, -d.v2g, color="tab:red", label="V2G (negative)")
+    if d.vipv.sum() > 0:
+        ax.plot(d.index, d.vipv, color="darkorange", ls=":", label="VIPV used")
+    ax.axhline(0, color="grey", lw=0.5)
+    ax.set_ylabel("Power [MW]")
+    ax.set_title(f"{fleet}: one week - {last}")
+    ax2 = ax.twinx()
+    ax2.plot(d.index, d.soc, color="grey", ls="--", lw=1, label="SoC (right axis)")
+    ax2.set_ylim(0, 100)
+    ax2.set_ylabel("SoC [%]")
+    lines = ax.get_legend_handles_labels()[0] + ax2.get_legend_handles_labels()[0]
+    names = ax.get_legend_handles_labels()[1] + ax2.get_legend_handles_labels()[1]
+    ax.legend(lines, names, fontsize=7, loc="upper left", ncol=5)
+axes[-1].set_xlabel("Date (Danish local time)")
+save(fig, "07_week_per_fleet")
+
+# ---------------------------------------------------------------------------
+# PLOT 8 - Full week: heavy-duty driving demand vs charging (buses + trucks, last run)
+# ---------------------------------------------------------------------------
+heavy = [f for f in ["bus", "truck"] if f in series[last]]
+if heavy:
+    fig, ax = plt.subplots(figsize=(13, 4))
+    for fleet in heavy:
+        d = series[last][fleet].loc[week]
+        ax.plot(d.index, d.driving, color=FLEET_COLORS[fleet], lw=1.2, label=f"{fleet} driving demand")
+        ax.plot(d.index, d.charging, color=FLEET_COLORS[fleet], ls="--", lw=1, label=f"{fleet} charging")
+    # shade depot hours (19:00-06:00) to show when buses/trucks can charge
+    for day in pd.date_range(week.start, week.stop, freq="D"):
+        ax.axvspan(day - pd.Timedelta(hours=5), day + pd.Timedelta(hours=6), color="grey", alpha=0.1)
+    ax.set_xlim(week.start, week.stop)
+    ax.set_ylabel("Power [MW]")
+    ax.set_xlabel("Date (Danish local time) - grey = depot hours 19:00-06:00")
+    ax.set_title(f"Heavy-duty transport: driving demand and charging, one week - {last}")
+    ax.legend(fontsize=8, ncol=2)
+    save(fig, "08_heavy_duty_week")
 
 print(f"\nDone! Open: {OUT_DIR}")
